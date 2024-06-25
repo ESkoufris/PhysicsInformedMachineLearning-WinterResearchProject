@@ -82,31 +82,46 @@ class Grid2D(Grid):
         plt.ylabel("t")
         plt.show()
 
+    def first_partial_derivative(self, func, var_index):
+        """
+        Evaluates the first partial derivative of a function at a grid of two-vectors
+        Return a grid of partial derivative 
+        """
+        x = self[...,0]
+        t = self[...,1]
+        z = func(x,t)
+        if var_index == 0:
+            z = torch.autograd.grad(outputs=z, 
+                                    inputs=x, 
+                                    grad_outputs=torch.ones_like(z), 
+                                    create_graph=True)[0]
+        else:
+            z= torch.autograd.grad(outputs=z, 
+                                    inputs=t, 
+                                    grad_outputs=torch.ones_like(z), 
+                                    create_graph=True)[0]
+        return [x,t,z]
+
+    def second_partial_derivative(self, func, var_index1, var_index2):
+        """
+        Evaluates the second partial derivative of a function 
+        """
+        if var_index1 == 0:
+            [x,t,z] = self.first_partial_derivative(func, 0)
+        elif var_index1 == 1:
+            [x,t,z] = self.first_partial_derivative(func, 1)
+        
+        if var_index2 == 0:
+            return torch.autograd.grad(outputs=z, 
+                                    inputs=x, 
+                                    grad_outputs=torch.ones_like(z))[0]
+        elif var_index2 == 1:
+            return torch.autograd.grad(outputs=z, 
+                                    inputs=t, 
+                                    grad_outputs=torch.ones_like(z))[0]
 ##################
 #  Grid sampling #
 ##################
 def sample(grid: Grid, method = 'uniform'):
     pass
 
-g = Grid2D(0,10,0.01,0,10,0.01)
-g.plot()
-
-
-x = torch.zeros((1001,1001,2))
-
-x[:,:,:]
-
-x = torch.zeros((2,2))
-x[-1,:] = 1
-x
-
-
-x = torch.tensor([[[1,1],[1,2]],[[2,1],[2,2]]])
-y = x[:,:,0]
-y.reshape(-1)
-
-z = x[:,:,1]
-z.reshape(-1)
-
-x = torch.ones(100)
-x[0:-1:100]

@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader
 
 class PINN(nn.Module):
     """
@@ -16,21 +17,23 @@ class pinn1D(PINN):
         super().__init__()
 
         self.pinn = nn.Sequential(
-            nn.Linear(2,20),
-            nn.Tanh(),
-            nn.Linear(20,1)
-        )
+                nn.Linear(2, 100),
+                nn.Tanh(),
+                nn.Linear(100, 100),
+                nn.Tanh(),
+                nn.Linear(100, 100),
+                nn.Tanh(),
+                nn.Linear(100, 100),
+                nn.Tanh(),
+                nn.Linear(100, 1)
+            )
     
-    def forward(self, data):
-        return self.pinn(data)
+    def forward(self, x, t):
+        input = torch.vstack([x, t]).T
+        return self.pinn(input).squeeze()
 
 #######
 # GAN #
 #######
 class ga_pinn(PINN):
     pass
-
-pinn = pinn1D()
-
-x = torch.ones((20,2))
-pinn1D()(x)
