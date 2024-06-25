@@ -45,9 +45,11 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
     optimizer = optim.Adam(pinn.parameters(), lr=lr)
 
     # seperate boundary and initial points from interior points 
-    bdry_pts = grid[torch.logical_or(grid[...,0] == 0, grid[...,0] == 1)]
+    L = grid.x_end
+    T = grid.t_end
+    bdry_pts = grid[torch.logical_or(grid[...,0] == 0, grid[...,0] == L)]
     init_pts = grid[grid[...,1] == 0]
-    int_pts = grid[torch.logical_not(torch.logical_or(torch.logical_or(grid[...,0] == 0, grid[...,0] == 1), grid[...,1] == 0))]
+    int_pts = grid[torch.logical_not(torch.logical_or(torch.logical_or(grid[...,0] == 0, grid[...,0] == L), grid[...,1] == 0))]
     
     dataset = MultiTensorDataset(bdry_pts, init_pts, int_pts)
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=custom_collate_fn, shuffle=True)

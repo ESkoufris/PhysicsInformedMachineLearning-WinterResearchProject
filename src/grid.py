@@ -39,7 +39,9 @@ class Grid2D(Grid):
         x_length = int((x_end - x_start)/x_step) + 1
         t_length = int((t_end - t_start)/t_step) + 1
         self.x_length = x_length
+        self.x_end = x_end
         self.t_length = t_length
+        self.t_end = t_end
 
         grid = torch.zeros((x_length, t_length, 2))
         
