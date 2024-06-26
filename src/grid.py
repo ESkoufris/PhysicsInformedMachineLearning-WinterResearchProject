@@ -38,6 +38,9 @@ class Grid1D(Grid):
 class Grid2D(Grid):
     """
     Generates a two-dimensional grid of values
+
+    Attributes: 
+        
     """
     def __init__(self, x_start, x_end, x_step, t_start, t_end, t_step):
         self.x_end = x_end

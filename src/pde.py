@@ -7,8 +7,15 @@ from src.pinn import *
 
 def first_partial_derivative(func, points, var_index, retain_graph = True):
     """
-    Evaluates the first partial derivative of a function a points of two-vectors \\
-    Return a points of partial derivative 
+    Evaluates the first partial derivative of a real function with domain R^2 at a set of points
+    
+    Args: 
+        func: The function whose derivative is evaluated
+        points: The points at which the derivative is evaluated
+        var_index: The index of the variable with respect to which the derivative is evaluated
+
+    Returns: 
+        partial_derivative: The derivatives 
     """
     points.requires_grad_(True)
     x = points[...,0].flatten()
@@ -36,6 +43,14 @@ def first_partial_derivative(func, points, var_index, retain_graph = True):
 def second_partial_derivative(func, points, var_index1, var_index2):
     """
     Evaluates the second partial derivative of a function 
+
+    Args: 
+        func: The function whose derivative is evaluated
+        points: The points at which the derivative is evaluated
+        var_index: The index of the variable with respect to which the derivative is evaluated
+
+    Returns: 
+        partial_derivative: The derivatives 
     """
     if var_index1 == 0:
        [x,t,z] = first_partial_derivative(func, points, 0)
