@@ -11,8 +11,8 @@ def first_partial_derivative(func, points, var_index, retain_graph = True):
     Return a points of partial derivative 
     """
     points.requires_grad_(True)
-    x = points[...,0]
-    t = points[...,1]
+    x = points[...,0].flatten()
+    t = points[...,1].flatten()
 
     z = func(x,t)
 
@@ -88,34 +88,32 @@ def basic_ics(points):
 ################
 # Example PDEs #
 ################
-def u(x,t):
-    return torch.sin(x*t)
 
 def heat_equation1D(u, points, c=1):
     """
     One-dimensional heat equation PDE residual
     """
-    return first_partial_derivative(u,points,0)[-1] + (c**2)*second_partial_derivative(u,points,1,1)
+    return first_partial_derivative(u,points,1)[-1] + (c**2)*second_partial_derivative(u,points,0,0)
 
 def wave_equation1D(u, t, x, c=1):
     """
     One-dimensional wave equation PDE residual
     """
-    return second_partial_derivative(u,t,x,0,0) + (c**2)*second_partial_derivative(u,t,x,1,1)
+    return second_partial_derivative(u,t,x,1,1) + (c**2)*second_partial_derivative(u,t,x,0,0)
 
 
 ####################
 # Useful functions #
 ####################
 
-def initial_sine(points):
+def initial_sine(x):
     """
     Takes in points where t = 0 
     """
-    return torch.sin(points[...,0])
+    return torch.sin(x)
 
 # boundary condition functions 
 def xero(points):
-    return torch.zeros(len(points))
+    return torch.zeros(points.shape[0]*points.shape[1])
 
 dirichlet_heat_equation_pde = PDE(heat_equation1D, initial_sine, xero)

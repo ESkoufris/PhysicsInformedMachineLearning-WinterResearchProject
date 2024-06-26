@@ -38,6 +38,9 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     losses = []
+    bdry_losses = []
+    init_losses = []
+    int_losses = []
     epoch_losses = []
     pinn.to(device)
 
@@ -45,11 +48,9 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
     optimizer = optim.Adam(pinn.parameters(), lr=lr)
 
     # seperate boundary and initial points from interior points 
-    L = grid.x_end
-    T = grid.t_end
-    bdry_pts = grid[torch.logical_or(grid[...,0] == 0, grid[...,0] == L)]
-    init_pts = grid[grid[...,1] == 0]
-    int_pts = grid[torch.logical_not(torch.logical_or(torch.logical_or(grid[...,0] == 0, grid[...,0] == L), grid[...,1] == 0))]
+    bdry_pts = grid[[0,-1],...]
+    init_pts = grid[:,0,:].unsqueeze(0)
+    int_pts = grid[1:-1, 1:,:]
     
     dataset = MultiTensorDataset(bdry_pts, init_pts, int_pts)
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=custom_collate_fn, shuffle=True)
@@ -83,6 +84,9 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
             
             # saving loss
             epoch_loss += loss.item()
+            bdry_losses.append(Lb.item())
+            init_losses.append(Lo.item())
+            int_losses.append(Lp.item())
             losses.append(loss.item())
 
             # gradient descent

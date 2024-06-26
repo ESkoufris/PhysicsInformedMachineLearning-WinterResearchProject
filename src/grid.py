@@ -1,6 +1,6 @@
+import numpy as np
 import torch 
 import matplotlib.pyplot as plt
-import numpy as np
 import matplotlib.pyplot as plt
 
 class Grid:
@@ -12,6 +12,9 @@ class Grid:
     
     def __getitem__(self, index):
         return self.grid[index]
+    
+    def reshape(self,i):
+        return self.grid.reshpape(i)  
 
     @property
     def shape(self):
@@ -29,27 +32,25 @@ class Grid1D(Grid):
         self.grid = torch.arange(start=self.start,end=self.end,step=self.step)
     
     def __len__(self):
-        return len(self.x_grid)    
+        return len(self.x_grid)  
+
     
 class Grid2D(Grid):
     """
     Generates a two-dimensional grid of values
     """
     def __init__(self, x_start, x_end, x_step, t_start, t_end, t_step):
-        x_length = int((x_end - x_start)/x_step) + 1
-        t_length = int((t_end - t_start)/t_step) + 1
-        self.x_length = x_length
         self.x_end = x_end
-        self.t_length = t_length
         self.t_end = t_end
 
-        grid = torch.zeros((x_length, t_length, 2))
+        nx_steps = int((x_end - x_start)/x_step)
+        nt_steps = int((t_end - t_start)/t_step)
+
+        x = np.linspace(x_start, x_end, nx_steps)
+        t = np.linspace(t_start, t_end, nt_steps)
+ 
         
-        for i in range(x_length):
-            for j in range(t_length):
-                x = x_start + i*x_step
-                t = t_start + j*t_step 
-                grid[i,j] = torch.tensor([x,t])
+        grid = torch.tensor(np.meshgrid(x,t), dtype=torch.float32).permute(2,1,0)
 
         self.grid = grid
 
@@ -57,18 +58,16 @@ class Grid2D(Grid):
         """
         Extracts the boundary points of a two-dimensional grid
         """
-        left_boundary = self[0,:,:]
-        right_boundary = self[-1, :, :]
-        return [left_boundary, right_boundary]
+        return self[[0,-1],...]
     
     def get_initial_state(self):
         return self[:,0,:]
-
+    
     def get_interior(self):
         """
         Returns the grid less the boundary and initial state tensors  
         """
-        return self[1:-2,1:-1,:]
+        return self[1:-1,1:,:]
 
     def plot(self, skip = 100):
         """
@@ -127,3 +126,11 @@ class Grid2D(Grid):
 def sample(grid: Grid, method = 'uniform'):
     pass
 
+# g = Grid2D(0,2*np.pi, 0.01, 0, 10, 0.01)
+# gr = g.grid
+
+# gr[[0,-1],...]
+
+# gr[:,0,:]
+
+# gr[1:-1, 1:,:]
