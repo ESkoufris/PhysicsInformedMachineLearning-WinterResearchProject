@@ -93,13 +93,13 @@ def heat_equation1D(u, points, c=1):
     """
     One-dimensional heat equation PDE residual
     """
-    return first_partial_derivative(u,points,1)[-1] + (c**2)*second_partial_derivative(u,points,0,0)
+    return first_partial_derivative(u,points,1)[-1] - (c**2)*second_partial_derivative(u,points,0,0)
 
 def wave_equation1D(u, t, x, c=1):
     """
     One-dimensional wave equation PDE residual
     """
-    return second_partial_derivative(u,t,x,1,1) + (c**2)*second_partial_derivative(u,t,x,0,0)
+    return second_partial_derivative(u,t,x,1,1) - (c**2)*second_partial_derivative(u,t,x,0,0)
 
 
 ####################
@@ -114,6 +114,6 @@ def initial_sine(x):
 
 # boundary condition functions 
 def xero(points):
-    return torch.zeros(points.shape[0]*points.shape[1])
+    return torch.zeros(points.shape[0])
 
 dirichlet_heat_equation_pde = PDE(heat_equation1D, initial_sine, xero)

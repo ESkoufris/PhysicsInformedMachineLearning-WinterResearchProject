@@ -10,7 +10,7 @@ def physics_loss(u, points, pde):
     Returns: 
     """
     # needs to compute difference from 0
-    return mse_loss(pde(u, points), torch.zeros(points.shape[0]*points.shape[1]))
+    return mse_loss(pde(u, points), torch.zeros(points.shape[0]))
 
 def boundary_loss(u, points, bcs = None):
     """

@@ -51,6 +51,11 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
     bdry_pts = grid[[0,-1],...]
     init_pts = grid[:,0,:].unsqueeze(0)
     int_pts = grid[1:-1, 1:,:]
+
+    bdry_pts = bdry_pts.reshape(-1,bdry_pts.shape[2])
+    bdry_pts = bdry_pts[torch.randperm(bdry_pts.shape[0])]
+    init_pts = init_pts.reshape(-1,init_pts.shape[2])
+    int_pts = int_pts.reshape(-1,int_pts.shape[2])
     
     dataset = MultiTensorDataset(bdry_pts, init_pts, int_pts)
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=custom_collate_fn, shuffle=True)
@@ -99,3 +104,26 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
 
     return epoch_losses, losses 
 
+####################
+# Testing function #
+####################
+def test(pinn: PINN, pde: PDE, grid, batch_size=4):
+    bdry_pts = grid[[0,-1],...]
+    init_pts = grid[:,0,:].unsqueeze(0)
+    int_pts = grid[1:-1, 1:,:]
+
+    ics = pde.ics
+    bcs = pde.bcs 
+    pde = pde.pde 
+
+    bdry_pts = bdry_pts.reshape(-1,bdry_pts.shape[2])
+    init_pts = init_pts.reshape(-1,init_pts.shape[2])
+    int_pts = int_pts.reshape(-1,int_pts.shape[2])
+
+    Lb = boundary_loss(pinn, bdry_pts, bcs)
+    Lo = initial_loss(pinn, init_pts, ics)
+    Lp = physics_loss(pinn, int_pts, pde)
+
+    return [Lb, Lo, Lp]
+
+    
