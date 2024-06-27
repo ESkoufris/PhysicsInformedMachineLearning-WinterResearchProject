@@ -89,7 +89,6 @@ class Grid2D(Grid):
     def first_partial_derivative(self, func, var_index):
         """
         Evaluates the first partial derivative of a function at a grid of two-vectors
-        Return a grid of partial derivative 
         """
         x = self[...,0]
         t = self[...,1]
@@ -128,12 +127,3 @@ class Grid2D(Grid):
 ##################
 def sample(grid: Grid, method = 'uniform'):
     pass
-
-# g = Grid2D(0,2*np.pi, 0.01, 0, 10, 0.01)
-# gr = g.grid
-
-# gr[[0,-1],...]
-
-# gr[:,0,:]
-
-# gr[1:-1, 1:,:]

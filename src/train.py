@@ -107,10 +107,25 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
 ####################
 # Testing function #
 ####################
-def test(pinn: PINN, pde: PDE, grid, batch_size=4):
+def test(pinn: PINN, pde: PDE, grid, batch_size=1000):
+    """
+    Evaluates the total loss of a PINN trained to solve a PDE over a given domain
+
+    Args:
+        pinn (PINN): The physics-informed neural network
+        grid (Grid): The grid of values 
+
+    Returns:
+        [Lb,Lo,Lp]: A list containing the boundary, initial and physics loss of the network 
+    """
+    device = torch.device("cpu")
     bdry_pts = grid[[0,-1],...]
     init_pts = grid[:,0,:].unsqueeze(0)
     int_pts = grid[1:-1, 1:,:]
+
+    Lb = 0
+    Lo = 0
+    Lp = 0 
 
     ics = pde.ics
     bcs = pde.bcs 
@@ -120,9 +135,19 @@ def test(pinn: PINN, pde: PDE, grid, batch_size=4):
     init_pts = init_pts.reshape(-1,init_pts.shape[2])
     int_pts = int_pts.reshape(-1,int_pts.shape[2])
 
-    Lb = boundary_loss(pinn, bdry_pts, bcs)
-    Lo = initial_loss(pinn, init_pts, ics)
-    Lp = physics_loss(pinn, int_pts, pde)
+    dataset = MultiTensorDataset(bdry_pts, init_pts, int_pts)
+    dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=custom_collate_fn, shuffle=False)
+
+    for bdry_batch, init_batch, int_batch  in dataloader:
+        # move batch to device    
+        bdry_batch = bdry_batch.to(device)
+        init_batch = init_batch.to(device)
+        int_batch = int_batch.to(device)
+
+        # compute losses 
+        Lb += boundary_loss(pinn, bdry_batch, bcs)
+        Lo += initial_loss(pinn, init_batch, ics)
+        Lp += physics_loss(pinn, int_batch, pde)
 
     return [Lb, Lo, Lp]
 

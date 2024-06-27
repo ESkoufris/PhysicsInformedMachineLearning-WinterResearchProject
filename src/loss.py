@@ -6,8 +6,12 @@ def physics_loss(u, points, pde):
     Computes the PDE residual of a PINN
 
     Args: 
+        u (function): A function that acts upon points of the form (x,t), where x is a vector 
+        points (torch.tensor): Points at which the PDE is evaluated 
+        pde (function): PDE residual
 
     Returns: 
+        torch.float: Average squared mean PDE residual of the function u 
     """
     # needs to compute difference from 0
     return mse_loss(pde(u, points), torch.zeros(points.shape[0]))
