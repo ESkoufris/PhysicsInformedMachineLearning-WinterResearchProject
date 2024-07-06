@@ -102,7 +102,7 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
         epoch_loss /= n_batches
         loop.set_postfix(loss="%5.5f" % (epoch_loss)) 
 
-    return epoch_losses, losses 
+    return epoch_losses, losses, bdry_losses, init_losses, int_losses
 
 ####################
 # Testing function #
@@ -149,6 +149,6 @@ def test(pinn: PINN, pde: PDE, grid, batch_size=1000):
         Lo += initial_loss(pinn, init_batch, ics)
         Lp += physics_loss(pinn, int_batch, pde)
 
-    return [Lb, Lo, Lp]
+    return [Lb.item(), Lo.item(), Lp.item()]
 
     

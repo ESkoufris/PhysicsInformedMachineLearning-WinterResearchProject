@@ -80,7 +80,7 @@ class PDE:
         pde (func): The partial differential equation, written in standard form 
         ics (func): A function which, when acted upon points at t = 0, returns the initial state of the system 
         bcs (func): A function which, when acted upon points at the boundary of the spatial  domain, 
-                    returns the initial state of the system 
+        returns the initial state of the system 
     """
     def __init__(self, pde, ics, bcs):
         self.pde = pde

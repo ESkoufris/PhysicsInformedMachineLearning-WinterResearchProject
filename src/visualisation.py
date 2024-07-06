@@ -21,7 +21,7 @@ def visualise_solution(pinn, grid: Grid, title = "PINN-approximated solution"):
     fig = go.Figure(data=[go.Surface(z=z.reshape(grid[...,0].shape), x=grid[...,0], y=grid[...,1])])
     
     fig.update_layout(
-        title='PINN heat equation solution',
+        title=title,
         scene=dict(
             xaxis=dict(
                 title='x',
@@ -38,11 +38,11 @@ def visualise_solution(pinn, grid: Grid, title = "PINN-approximated solution"):
                 dtick=0.5
             ),
             zaxis=dict(
-                title=title,
+                title='Temperature',
                 range=[1.1*m, 1.1*M],
                 tickmode='linear',
                 tick0=0,
-                dtick=0.1
+                dtick=0.5
             ),
         )
     )
