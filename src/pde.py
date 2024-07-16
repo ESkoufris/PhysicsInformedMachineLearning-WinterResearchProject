@@ -22,8 +22,8 @@ def first_partial_derivative(func, points, var_index, retain_graph = True):
     points.requires_grad_(True)
     x = points[...,0].flatten()
     t = points[...,1].flatten()
-
-    z = func(x,t)
+    ratios = points[...,2].flatten()
+    z = func(x,t,ratios)
 
     if var_index == 0:
         grad_var = x
@@ -108,11 +108,14 @@ def basic_ics(points):
 # Example PDEs #
 ################
 
-def heat_equation1D(u, points, c=1):
+def heat_equation1D(u, points):
     """
     One-dimensional heat equation PDE residual
     """
-    return first_partial_derivative(u,points,1)[-1] - (c**2)*second_partial_derivative(u,points,0,0)
+    ratios = points[:,-1]
+    d1 = first_partial_derivative(u,points,1)[-1]
+    d2 = second_partial_derivative(u,points,0,0)
+    return d1 - ratios*d2  
 
 def wave_equation1D(u, t, x, c=1):
     """

@@ -22,7 +22,8 @@ def boundary_loss(u, points, bcs = None):
     """
     x = points[...,0].flatten()
     t = points[...,1].flatten()
-    return mse_loss(u(x,t), bcs(points))
+    ratios = points[...,2].flatten()
+    return mse_loss(u(x, t, ratios), bcs(points))
 
 def initial_loss(u, points, ics):
     """
@@ -30,5 +31,6 @@ def initial_loss(u, points, ics):
     """
     x = points[...,0].flatten()
     t = points[...,1].flatten()
-    return mse_loss(u(x,t), ics(x))
+    ratios = points[...,2].flatten()
+    return mse_loss(u(x, t, ratios), ics(x))
 

@@ -52,10 +52,19 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
     init_pts = grid[:,0,:].unsqueeze(0)
     int_pts = grid[1:-1, 1:,:]
 
+    # initialise linear coefficients 
+    ratios = 3*torch.rand(100) + 1
+
     bdry_pts = bdry_pts.reshape(-1,bdry_pts.shape[2])
+    # randomly arrange boundary points
     bdry_pts = bdry_pts[torch.randperm(bdry_pts.shape[0])]
     init_pts = init_pts.reshape(-1,init_pts.shape[2])
-    int_pts = int_pts.reshape(-1,int_pts.shape[2])
+    int_pts = int_pts.reshape(-1,int_pts.shape[2])   
+
+    # concatenate with ratios 
+    bdry_pts = concat_ratios(bdry_pts, ratios)
+    init_pts = concat_ratios(init_pts,ratios)
+    int_pts = concat_ratios(int_pts,ratios)
     
     dataset = MultiTensorDataset(bdry_pts, init_pts, int_pts)
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=custom_collate_fn, shuffle=True)
@@ -70,9 +79,9 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
         t0 = time()
         epoch_loss = 0
         n_batches = 0 
-        for bdry_batch, init_batch, int_batch  in dataloader:
+        for bdry_batch, init_batch, int_batch in dataloader:
             n_batches += 1
-            
+                
             # move batch to device    
             bdry_batch = bdry_batch.to(device)
             init_batch = init_batch.to(device)
@@ -86,7 +95,7 @@ def train(pinn: PINN, pde: PDE, grid, lr=0.001, nepochs=100, batch_size=4):
             Lo = initial_loss(pinn, init_batch, ics)
             Lp = physics_loss(pinn, int_batch, pde)
             loss = Lb + Lo + Lp
-            
+                
             # saving loss
             epoch_loss += loss.item()
             bdry_losses.append(Lb.item())
@@ -151,4 +160,13 @@ def test(pinn: PINN, pde: PDE, grid, batch_size=1000):
 
     return [Lb.item(), Lo.item(), Lp.item()]
 
-    
+####################
+# Helper functions #
+####################
+def concat_ratios(points: torch.tensor, ratios: torch.tensor):
+    points = torch.repeat_interleave(points,len(ratios), dim=0)
+    ratios = torch.repeat_interleave(ratios, int(len(points)/len(ratios)), dim=0)
+    out = torch.cat((points, ratios.unsqueeze(1)), dim=1)
+    return out 
+
+

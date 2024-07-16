@@ -1,13 +1,19 @@
 from src.grid import Grid
 from src.pinn import PINN
 import numpy as np
+import torch
 import plotly.graph_objects as go
 
 
-def visualise_solution(pinn, grid: Grid, title = "PINN-approximated solution"):
+def visualise_solution(pinn, grid: Grid, title = "PINN-approximated solution", ratio=None):
     x = grid[...,0].flatten()
     t = grid[...,1].flatten()
-    z = pinn(x,t)
+    ratios = ratio*torch.ones(len(x))
+
+    if ratio is not None:
+        z = pinn(x,t,ratios)
+    else:
+        z = pinn(x,t)
 
     L = grid.x_end 
     T = grid.t_end
