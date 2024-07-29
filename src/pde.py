@@ -117,6 +117,17 @@ def heat_equation1D(u, points):
     d2 = second_partial_derivative(u,points,0,0)
     return d1 - ratios*d2  
 
+def general_pde1D(u, points):
+    """
+    General PDE residual
+    """
+    ratios1 = points[:,-2]
+    ratios2 = points[:,-1]
+    d1 = first_partial_derivative(u,points,1)[-1]
+    d2 = second_partial_derivative(u,points,0,0)
+    d3 = second_partial_derivative(u,points,0,0)
+    return d1 - ratios1*d2 + ratios2*d3  
+
 def wave_equation1D(u, t, x, c=1):
     """
     One-dimensional wave equation PDE residual
@@ -150,7 +161,7 @@ def fourier_heat_eq_solution(x, t, f, L, n_max, c=1):
         x (float): The spatial coordinate.
         t (float): The time coordinate.
         f (callable): The initial temperature distribution function.
-        L (float): The length of the domain.
+        L (float): The length of the spatial domain.
         n_max (int): The number of terms in the Fourier series.
 
     Returns:

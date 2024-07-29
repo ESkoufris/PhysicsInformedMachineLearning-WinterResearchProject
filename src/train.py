@@ -164,7 +164,7 @@ def test(pinn: PINN, pde: PDE, grid, batch_size=1000):
 # Helper functions #
 ####################
 def concat_ratios(points: torch.tensor, ratios: torch.tensor):
-    points = torch.repeat_interleave(points,len(ratios), dim=0)
+    points = torch.repeat_interleave(points, len(ratios), dim=0)
     ratios = torch.repeat_interleave(ratios, int(len(points)/len(ratios)), dim=0)
     out = torch.cat((points, ratios.unsqueeze(1)), dim=1)
     return out 
